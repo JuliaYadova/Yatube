@@ -7,13 +7,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('posts', '0005_auto_20211211_0032'),
+        ("posts", "0005_auto_20211211_0032"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='post',
-            name='text',
+            model_name="post",
+            name="text",
             field=models.TextField(validators=[posts.validators.validate_not_empty]),
         ),
     ]

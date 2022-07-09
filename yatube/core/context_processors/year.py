@@ -5,4 +5,4 @@ year_now = int(now.strftime("%Y"))
 
 
 def year(request):
-    return {'year': year_now}
+    return {"year": year_now}

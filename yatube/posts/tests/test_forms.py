@@ -18,12 +18,12 @@ class PostFormTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.user = User.objects.create_user(username='HasNoName')
-        cls.user_two = User.objects.create_user(username='Other')
+        cls.user = User.objects.create_user(username="HasNoName")
+        cls.user_two = User.objects.create_user(username="Other")
         cls.group = Group.objects.create(
-            title='Тестовая группа',
-            slug='test_group',
-            description='Тестовое описание группы'
+            title="Тестовая группа",
+            slug="test_group",
+            description="Тестовое описание группы",
         )
 
     @classmethod
@@ -49,61 +49,48 @@ class PostFormTests(TestCase):
         # Создаем пост без группы
         post_count = Post.objects.count()
         form_data = {
-            'text': 'Тестовый текст',
+            "text": "Тестовый текст",
         }
         response = self.auth_client.post(
-            reverse('posts:post_create'),
-            data=form_data,
-            follow=True
+            reverse("posts:post_create"), data=form_data, follow=True
         )
-        self.assertRedirects(response, reverse(
-            'posts:profile',
-            kwargs={'username': PostFormTests.user}
-        )
+        self.assertRedirects(
+            response, reverse("posts:profile", kwargs={"username": PostFormTests.user})
         )
         self.assertEqual(Post.objects.count(), post_count + 1)
         # Проверяем, что создалась запись
-        self.assertEqual(
-            Post.objects.order_by('-pk')[0].text,
-            form_data['text']
-        )
+        self.assertEqual(Post.objects.order_by("-pk")[0].text, form_data["text"])
 
     def test_create_post_with_img(self):
         """Валидная форма создает запись в Post c img"""
         # Создаем пост c img
         post_count = Post.objects.count()
         small_gif = (
-            b'\x47\x49\x46\x38\x39\x61\x02\x00'
-            b'\x01\x00\x80\x00\x00\x00\x00\x00'
-            b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
-            b'\x00\x00\x00\x2C\x00\x00\x00\x00'
-            b'\x02\x00\x01\x00\x00\x02\x02\x0C'
-            b'\x0A\x00\x3B'
+            b"\x47\x49\x46\x38\x39\x61\x02\x00"
+            b"\x01\x00\x80\x00\x00\x00\x00\x00"
+            b"\xFF\xFF\xFF\x21\xF9\x04\x00\x00"
+            b"\x00\x00\x00\x2C\x00\x00\x00\x00"
+            b"\x02\x00\x01\x00\x00\x02\x02\x0C"
+            b"\x0A\x00\x3B"
         )
         uploaded = SimpleUploadedFile(
-            name='small.gif',
-            content=small_gif,
-            content_type='image/gif'
+            name="small.gif", content=small_gif, content_type="image/gif"
         )
         form_data = {
-            'text': 'Тестовый текст',
-            'image': uploaded,
+            "text": "Тестовый текст",
+            "image": uploaded,
         }
         response = self.auth_client.post(
-            reverse('posts:post_create'),
-            data=form_data,
-            follow=True
+            reverse("posts:post_create"), data=form_data, follow=True
         )
-        self.assertRedirects(response, reverse(
-            'posts:profile',
-            kwargs={'username': PostFormTests.user}
-        )
+        self.assertRedirects(
+            response, reverse("posts:profile", kwargs={"username": PostFormTests.user})
         )
         self.assertEqual(Post.objects.count(), post_count + 1)
         # Проверяем, что создалась запись c img
-        last_post = Post.objects.order_by('-pk')[0]
+        last_post = Post.objects.order_by("-pk")[0]
         expect_answer = {
-            last_post.text: form_data['text'],
+            last_post.text: form_data["text"],
             str(last_post.image): str(last_post.image),
         }
         self.cheking_context(expect_answer)
@@ -113,25 +100,21 @@ class PostFormTests(TestCase):
         # Создаем пост с группой
         post_count = Post.objects.count()
         form_data = {
-            'text': 'Тестовый текст 2',
-            'group': PostFormTests.group.pk,
+            "text": "Тестовый текст 2",
+            "group": PostFormTests.group.pk,
         }
         response = self.auth_client.post(
-            reverse('posts:post_create'),
-            data=form_data,
-            follow=True
+            reverse("posts:post_create"), data=form_data, follow=True
         )
-        self.assertRedirects(response, reverse(
-            'posts:profile',
-            kwargs={'username': PostFormTests.user}
-        )
+        self.assertRedirects(
+            response, reverse("posts:profile", kwargs={"username": PostFormTests.user})
         )
         self.assertEqual(Post.objects.count(), post_count + 1)
         # Проверяем, что создалась запись c группой
-        last_post = Post.objects.order_by('-pk')[0]
+        last_post = Post.objects.order_by("-pk")[0]
         expect_answer = {
-            last_post.group.pk: form_data['group'],
-            last_post.text: form_data['text'],
+            last_post.group.pk: form_data["group"],
+            last_post.text: form_data["text"],
         }
         self.cheking_context(expect_answer)
 
@@ -140,14 +123,10 @@ class PostFormTests(TestCase):
         # Создаем пост гостем
         post_count = Post.objects.count()
         form_data = {
-            'text': 'Тестовый текст 2',
-            'group': PostFormTests.group.pk,
+            "text": "Тестовый текст 2",
+            "group": PostFormTests.group.pk,
         }
-        self.client.post(
-            reverse('posts:post_create'),
-            data=form_data,
-            follow=True
-        )
+        self.client.post(reverse("posts:post_create"), data=form_data, follow=True)
         # Проверяем что запись не создалась
         self.assertEqual(Post.objects.count(), post_count)
 
@@ -156,27 +135,27 @@ class PostFormTests(TestCase):
         # Редактируем пост без группы
         post_new = Post.objects.create(
             author=PostFormTests.user,
-            text='Текст',
+            text="Текст",
         )
         form_data = {
-            'text': 'Тестовый текст правка',
+            "text": "Тестовый текст правка",
         }
-        response = self.auth_client.post(reverse(
-            'posts:post_edit',
-            kwargs={'post_id': post_new.pk},),
+        response = self.auth_client.post(
+            reverse(
+                "posts:post_edit",
+                kwargs={"post_id": post_new.pk},
+            ),
             data=form_data,
             follow=True,
             is_edit=True,
         )
-        self.assertRedirects(response, reverse(
-            'posts:post_detail',
-            kwargs={'post_id': post_new.pk}
-        )
+        self.assertRedirects(
+            response, reverse("posts:post_detail", kwargs={"post_id": post_new.pk})
         )
         # Проверяем, что запись изменилась
         self.assertTrue(
             Post.objects.filter(
-                text=form_data['text'],
+                text=form_data["text"],
                 id=post_new.pk,
             ).exists()
         )
@@ -186,14 +165,16 @@ class PostFormTests(TestCase):
         # Редактируем пост гостем
         post_new = Post.objects.create(
             author=PostFormTests.user,
-            text='Текст',
+            text="Текст",
         )
         form_data = {
-            'text': 'Тестовый текст правка',
+            "text": "Тестовый текст правка",
         }
-        self.client.post(reverse(
-            'posts:post_edit',
-            kwargs={'post_id': post_new.pk},),
+        self.client.post(
+            reverse(
+                "posts:post_edit",
+                kwargs={"post_id": post_new.pk},
+            ),
             data=form_data,
             follow=True,
             is_edit=True,
@@ -213,14 +194,16 @@ class PostFormTests(TestCase):
         # Редактируем пост не автором
         post_new = Post.objects.create(
             author=PostFormTests.user,
-            text='Текст',
+            text="Текст",
         )
         form_data = {
-            'text': 'Тестовый текст правка',
+            "text": "Тестовый текст правка",
         }
-        self.other_user.post(reverse(
-            'posts:post_edit',
-            kwargs={'post_id': post_new.pk},),
+        self.other_user.post(
+            reverse(
+                "posts:post_edit",
+                kwargs={"post_id": post_new.pk},
+            ),
             data=form_data,
             follow=True,
             is_edit=True,
@@ -239,34 +222,30 @@ class PostFormTests(TestCase):
         """Валидная форма изменяет запись в Post с группой."""
         # Редактируем пост c группой
         post_new = Post.objects.create(
-            author=PostFormTests.user,
-            text='Текст',
-            group=PostFormTests.group
+            author=PostFormTests.user, text="Текст", group=PostFormTests.group
         )
         form_data = {
-            'text': 'Тестовый текст правка',
-            'group': post_new.group.pk,
+            "text": "Тестовый текст правка",
+            "group": post_new.group.pk,
         }
-        response = self.auth_client.post(reverse(
-            'posts:post_edit',
-            kwargs={'post_id': post_new.pk},),
+        response = self.auth_client.post(
+            reverse(
+                "posts:post_edit",
+                kwargs={"post_id": post_new.pk},
+            ),
             data=form_data,
             follow=True,
             is_edit=True,
         )
-        self.assertRedirects(response, reverse(
-            'posts:post_detail',
-            kwargs={'post_id': post_new.pk}
-        )
+        self.assertRedirects(
+            response, reverse("posts:post_detail", kwargs={"post_id": post_new.pk})
         )
         # Проверяем, что запись изменилась
-        post_change = Post.objects.get(
-            id=post_new.pk
-        )
+        post_change = Post.objects.get(id=post_new.pk)
         expect_answer = {
             post_new.pk: post_change.pk,
-            form_data['text']: post_change.text,
-            form_data['group']: post_change.group.pk
+            form_data["text"]: post_change.text,
+            form_data["group"]: post_change.group.pk,
         }
         self.cheking_context(expect_answer)
 
@@ -276,47 +255,43 @@ class PostFormTests(TestCase):
         # авторизированным пользователем
         post_new = Post.objects.create(
             author=PostFormTests.user,
-            text='Текст',
+            text="Текст",
         )
         comments_count = Comment.objects.count()
         form_data = {
-            'text': 'Тестовый комментарий',
+            "text": "Тестовый комментарий",
         }
         response = self.auth_client.post(
-            reverse('posts:add_comment', kwargs={'post_id': post_new.pk}),
+            reverse("posts:add_comment", kwargs={"post_id": post_new.pk}),
             data=form_data,
-            follow=True
+            follow=True,
         )
-        self.assertRedirects(response, reverse(
-            'posts:post_detail',
-            kwargs={'post_id': post_new.pk}
-        )
+        self.assertRedirects(
+            response, reverse("posts:post_detail", kwargs={"post_id": post_new.pk})
         )
         self.assertEqual(Comment.objects.count(), comments_count + 1)
         # Проверяем, что создался комментарий
-        last_comment = Comment.objects.order_by('-pk')[0]
-        self.assertEqual(last_comment.text, form_data['text'])
+        last_comment = Comment.objects.order_by("-pk")[0]
+        self.assertEqual(last_comment.text, form_data["text"])
         response = self.auth_client.get(
-            reverse('posts:post_detail',
-                    kwargs={'post_id': post_new.pk}),
+            reverse("posts:post_detail", kwargs={"post_id": post_new.pk}),
         )
-        self.assertEqual(response.context['comments'][0].text,
-                         form_data['text'])
+        self.assertEqual(response.context["comments"][0].text, form_data["text"])
 
     def test_create_comment_guest(self):
         """Валидная форма не создает комментарий от гостя."""
         # Создаем пост и комментарий
         post_new = Post.objects.create(
             author=PostFormTests.user,
-            text='Текст',
+            text="Текст",
         )
         comments_count = Comment.objects.count()
         form_data = {
-            'text': 'Тестовый комментарий',
+            "text": "Тестовый комментарий",
         }
         self.client.post(
-            reverse('posts:add_comment', kwargs={'post_id': post_new.pk}),
+            reverse("posts:add_comment", kwargs={"post_id": post_new.pk}),
             data=form_data,
-            follow=True
+            follow=True,
         )
         self.assertEqual(Comment.objects.count(), comments_count)

@@ -13,33 +13,27 @@ class PostURLTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.group = Group.objects.create(
-            title='Тестовая группа',
-            slug='test_group'
-        )
+        cls.group = Group.objects.create(title="Тестовая группа", slug="test_group")
 
     def setUp(self):
-        self.user = User.objects.create_user(username='HasNoName')
+        self.user = User.objects.create_user(username="HasNoName")
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
-        self.user_non = User.objects.create_user(username='HasNoPosts')
+        self.user_non = User.objects.create_user(username="HasNoPosts")
         self.authorized_client_no_posts = Client()
         self.authorized_client_no_posts.force_login(self.user_non)
-        self.post = Post.objects.create(
-            text='Тестовый текст',
-            author=self.user
-        )
+        self.post = Post.objects.create(text="Тестовый текст", author=self.user)
 
     def test_urls_uses_correct_template(self):
         """URL-адрес использует соответствующий шаблон."""
         # Шаблоны по адресам
         templates_url_names = {
-            '/': 'posts/index.html',
-            f'/group/{PostURLTests.group.slug}/': 'posts/group_list.html',
-            f'/profile/{self.user}/': 'posts/profile.html',
-            f'/posts/{int(self.post.pk)}/': 'posts/post_detail.html',
-            f'/posts/{int(self.post.pk)}/edit/': 'posts/create_post.html',
-            '/create/': 'posts/create_post.html',
+            "/": "posts/index.html",
+            f"/group/{PostURLTests.group.slug}/": "posts/group_list.html",
+            f"/profile/{self.user}/": "posts/profile.html",
+            f"/posts/{int(self.post.pk)}/": "posts/post_detail.html",
+            f"/posts/{int(self.post.pk)}/edit/": "posts/create_post.html",
+            "/create/": "posts/create_post.html",
         }
         for address, template in templates_url_names.items():
             with self.subTest(address=address):
@@ -50,13 +44,13 @@ class PostURLTests(TestCase):
         """URL-адрес доступен или нет не авторизированному пользователю."""
         # Доступ всем
         code_answer_for_users = {
-            '/': HTTPStatus.OK,
-            f'/group/{PostURLTests.group.slug}/': HTTPStatus.OK,
-            f'/profile/{self.user}/': HTTPStatus.OK,
-            f'/posts/{int(self.post.pk)}/': HTTPStatus.OK,
-            f'/posts/{int(self.post.pk)}/edit/': HTTPStatus.FOUND,
-            '/create/': HTTPStatus.FOUND,
-            '/unexisting_page/': HTTPStatus.NOT_FOUND,
+            "/": HTTPStatus.OK,
+            f"/group/{PostURLTests.group.slug}/": HTTPStatus.OK,
+            f"/profile/{self.user}/": HTTPStatus.OK,
+            f"/posts/{int(self.post.pk)}/": HTTPStatus.OK,
+            f"/posts/{int(self.post.pk)}/edit/": HTTPStatus.FOUND,
+            "/create/": HTTPStatus.FOUND,
+            "/unexisting_page/": HTTPStatus.NOT_FOUND,
         }
         for address, code in code_answer_for_users.items():
             with self.subTest(address=address):
@@ -68,13 +62,13 @@ class PostURLTests(TestCase):
         """URL-адрес доступен авторизированному пользователю."""
         # Доступ только авторизированным пользователям
         code_answer_for_users = {
-            '/': HTTPStatus.OK,
-            f'/group/{PostURLTests.group.slug}/': HTTPStatus.OK,
-            f'/profile/{self.user}/': HTTPStatus.OK,
-            f'/posts/{int(self.post.pk)}/': HTTPStatus.OK,
-            f'/posts/{int(self.post.pk)}/edit/': HTTPStatus.OK,
-            '/create/': HTTPStatus.OK,
-            '/unexisting_page/': HTTPStatus.NOT_FOUND,
+            "/": HTTPStatus.OK,
+            f"/group/{PostURLTests.group.slug}/": HTTPStatus.OK,
+            f"/profile/{self.user}/": HTTPStatus.OK,
+            f"/posts/{int(self.post.pk)}/": HTTPStatus.OK,
+            f"/posts/{int(self.post.pk)}/edit/": HTTPStatus.OK,
+            "/create/": HTTPStatus.OK,
+            "/unexisting_page/": HTTPStatus.NOT_FOUND,
         }
         for address, code in code_answer_for_users.items():
             with self.subTest(address=address):
@@ -86,13 +80,13 @@ class PostURLTests(TestCase):
         """URL-адрес редактирования не доступен пользователю."""
         # Доступ только автору
         code_answer_for_users = {
-            '/': HTTPStatus.OK,
-            f'/group/{PostURLTests.group.slug}/': HTTPStatus.OK,
-            f'/profile/{self.user}/': HTTPStatus.OK,
-            f'/posts/{int(self.post.pk)}/': HTTPStatus.OK,
-            f'/posts/{int(self.post.pk)}/edit/': HTTPStatus.FOUND,
-            '/create/': HTTPStatus.OK,
-            '/unexisting_page/': HTTPStatus.NOT_FOUND,
+            "/": HTTPStatus.OK,
+            f"/group/{PostURLTests.group.slug}/": HTTPStatus.OK,
+            f"/profile/{self.user}/": HTTPStatus.OK,
+            f"/posts/{int(self.post.pk)}/": HTTPStatus.OK,
+            f"/posts/{int(self.post.pk)}/edit/": HTTPStatus.FOUND,
+            "/create/": HTTPStatus.OK,
+            "/unexisting_page/": HTTPStatus.NOT_FOUND,
         }
         for address, code in code_answer_for_users.items():
             with self.subTest(address=address):
